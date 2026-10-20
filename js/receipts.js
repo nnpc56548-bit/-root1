@@ -1,0 +1,6 @@
+App.start('receipts',function(){var A=App,q='';
+ A.$('app').innerHTML='<h2>Receipts</h2><div class="card"><input id="rq" placeholder="Search by student name or receipt number"><div class="mu">Shows who was given each receipt, when, and how they paid.</div></div><div class="card" id="rl"></div>';
+ A.$('rq').oninput=function(){q=this.value.trim().toLowerCase();draw()};
+ function draw(){var L=DB.get('payments').filter(function(p){var s=A.student(p.sid)||{};return !q||((s.name||'')+' '+p.receipt).toLowerCase().indexOf(q)>=0}).sort(function(a,b){return b.seq-a.seq}).slice(0,200);
+  A.$('rl').innerHTML=L.length?L.map(function(p){var s=A.student(p.sid)||{},v=p.status==='void';return '<div class="it"><div'+(v?' style="opacity:.55;text-decoration:line-through"':'')+'><b>'+A.esc(p.receipt)+'</b> · '+A.esc(s.name)+' <span class="mu">('+A.esc(s.cls)+')</span><div class="mu">'+A.money(p.amt)+' · '+p.date+' · '+A.esc(p.method)+' · by '+A.esc(p.by)+(v?' · voided':'')+'</div></div><div class="ac"><button data-id="'+p.id+'">View</button></div></div>'}).join(''):'<span class="mu">No receipts found.</span>'}
+ A.$('rl').onclick=function(e){var b=e.target.closest('button');if(b)A.showReceipt(DB.get('payments').filter(function(p){return p.id===b.getAttribute('data-id')})[0])};draw()});
